@@ -1,0 +1,1136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Auction House - Enhanced</title>
+    <style>
+        /* Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --shadow: 0 2px 5px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-color);
+            position: relative;
+            padding-bottom: 0.25rem;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Filter Section */
+        .filters {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-option {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-option:hover,
+        .filter-option.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Art Grid */
+        .art-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .art-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .art-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .art-image {
+            width: 100%;
+            height: 250px;
+            background-color: #ddd;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .time-remaining {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .art-info {
+            padding: 1.5rem;
+        }
+
+        .art-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .art-artist {
+            color: #666;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .artist-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ddd;
+            background-size: cover;
+        }
+
+        .bid-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .current-bid {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .bid-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Bid Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fff;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 12px;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #666;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+
+        /* Bid History */
+        .bid-history {
+            margin-top: 2rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .bid-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .bid-entry:last-child {
+            border-bottom: none;
+        }
+
+        .bidder-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bid-amount {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* Form Styles */
+        .bid-form {
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .error-message {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInRight 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .art-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                padding: 1rem;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            .filters {
+                margin: 1rem;
+            }
+        }
+
+        /* Button Styles */
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+         /* Search Bar */
+        .search-container {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .advanced-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Detailed View */
+        .detailed-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .detailed-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 50px !important;
+        }
+
+        .image-gallery {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .thumbnail {
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .art-details {
+            padding: 1rem;
+        }
+
+        .art-header {
+            margin-bottom: 2rem;
+        }
+
+        .art-metadata {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metadata-item {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .bid-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .price-history {
+            margin-top: 2rem;
+        }
+
+        .price-chart {
+            height: 200px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .related-items {
+            margin-top: 2rem;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .related-item {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        /* Enhanced Notification System */
+        .notification-center {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 3000;
+        }
+
+        .notification {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideInRight 0.3s ease;
+            min-width: 300px;
+        }
+
+        .notification.success { border-left: 4px solid #2ecc71; }
+        .notification.warning { border-left: 4px solid #f1c40f; }
+        .notification.error { border-left: 4px solid #e74c3c; }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .detailed-content {
+                grid-template-columns: 1fr;
+            }
+
+            .image-gallery {
+                position: relative;
+                top: 0;
+            }
+
+            .main-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">A</div>
+                Art Auction House
+            </div>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#auctions">Auctions</a>
+                <a href="#profile">Profile</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Enhanced Search Bar -->
+    <section class="search-container">
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search by title, artist, or category...">
+            <button onclick="handleSearch()">Search</button>
+        </div>
+        <div class="search-filters">
+            <div class="advanced-filter">
+                <label>Price Range:</label>
+                <input type="number" placeholder="Min" style="width: 100px">
+                <input type="number" placeholder="Max" style="width: 100px">
+            </div>
+            <div class="advanced-filter">
+                <label>Sort By:</label>
+                <select>
+                    <option>Most Recent</option>
+                    <option>Ending Soon</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Most Bids</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="filters">
+        <div class="filter-options">
+            <div class="filter-option active">All</div>
+            <div class="filter-option">Paintings</div>
+            <div class="filter-option">Sculptures</div>
+            <div class="filter-option">Digital Art</div>
+            <div class="filter-option">Photography</div>
+        </div>
+    </section>
+
+    <main class="art-grid">
+        <!-- Art pieces will be dynamically added here -->
+    </main>
+
+    <!-- Bid Modal -->
+    <div class="modal" id="bidModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Place Your Bid</h2>
+            <div class="current-art-info">
+                <!-- Dynamic art info will be inserted here -->
+            </div>
+            <form class="bid-form" id="bidForm">
+                <div class="form-group">
+                    <label for="nickname">Nickname (optional)</label>
+                    <input type="text" id="nickname" placeholder="Enter your nickname">
+                </div>
+                <div class="form-group">
+                    <label for="bidAmount">Bid Amount ($)</label>
+                    <input type="number" id="bidAmount" required min="0" step="0.01">
+                    <div class="error-message" id="bidError"></div>
+                </div>
+                <button type="submit" id="submitBid">Place Bid</button>
+            </form>
+            <div class="bid-history">
+                <h3>Bid History</h3>
+                <!-- Bid history will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+     <!-- Detailed View Modal -->
+    <div id="detailedView" class="detailed-view">
+        <div class="detailed-content">
+            <div class="image-gallery">
+                <div class="main-image" id="mainImage"></div>
+                <div class="thumbnail-grid" id="thumbnailGrid"></div>
+            </div>
+            <div class="art-details">
+                <button onclick="closeDetailedView()" style="position: absolute; top: 1rem; right: 1rem;">✕</button>
+                <div class="art-header">
+                    <h1 id="artTitle"></h1>
+                    <p id="artArtist"></p>
+                </div>
+                <div class="art-metadata">
+                    <div class="metadata-item">
+                        <h3>Current Bid</h3>
+                        <p id="artCurrentBid"></p>
+                    </div>
+                    <div class="metadata-item">
+                        <h3>Time Remaining</h3>
+                        <p id="artTimeRemaining"></p>
+                    </div>
+                    <div class="metadata-item">
+                        <h3>Total Bids</h3>
+                        <p id="artBidCount"></p>
+                    </div>
+                    <div class="metadata-item">
+                        <h3>Category</h3>
+                        <p id="artCategory"></p>
+                    </div>
+                </div>
+                <div class="bid-section">
+                    <h2>Place a Bid</h2>
+                    <form id="detailedBidForm">
+                        <div class="form-group">
+                            <label>Your Bid Amount</label>
+                            <input type="number" id="detailedBidAmount" required>
+                            <p class="minimum-bid">Minimum bid: $<span id="minimumBid"></span></p>
+                        </div>
+                        <button type="submit">Place Bid</button>
+                    </form>
+                </div>
+                <div class="bid-history">
+                    <h2>Bid History</h2>
+                    <div id="detailedBidHistory"></div>
+                </div>
+                <div class="price-history">
+                    <h2>Price History</h2>
+                    <div class="price-chart" id="priceChart"></div>
+                </div>
+                <div class="related-items">
+                    <h2>Similar Items</h2>
+                    <div class="related-grid" id="relatedGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample art pieces data with enhanced information
+        // Image Sizes 400/300
+        const artPieces = [
+            {
+                id: 1,
+                title: "Abstract Dreams",
+                artist: "Jane Smith",
+                currentBid: 1500,
+                startingBid: 1000,
+                image: "assets/image/abstract-dreams.jpg", 
+                timeRemaining: "2h 15m",
+                bidCount: 12,
+                category: "Paintings",
+                bidHistory: [
+                    { bidder: "Art Lover", amount: 1500, time: "10 minutes ago" },
+                    { bidder: "Gallery X", amount: 1400, time: "1 hour ago" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Urban Landscape",
+                artist: "John Doe",
+                currentBid: 2200,
+                startingBid: 1800,
+                image: "assets/image/urban-landscape.jpg",
+                timeRemaining: "4h 30m",
+                bidCount: 8,
+                category: "Photography",
+                bidHistory: [
+                    { bidder: "PhotoFan", amount: 2200, time: "30 minutes ago" },
+                    { bidder: "City Gallery", amount: 2000, time: "2 hours ago" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Digital Fusion",
+                artist: "Sarah Johnson",
+                currentBid: 1800,
+                startingBid: 1500,
+                image: "assets/image/digital-fusion.jpg",
+                timeRemaining: "1d 6h",
+                bidCount: 15,
+                category: "Digital Art",
+                bidHistory: [
+                    { bidder: "CryptoArt", amount: 1800, time: "15 minutes ago" },
+                    { bidder: "NFT Collector", amount: 1700, time: "3 hours ago" }
+                ]
+            }
+        ];
+
+        // Function to create art piece cards
+        function createArtCards() {
+            const grid = document.querySelector('.art-grid');
+            grid.innerHTML = ''; // Clear existing cards
+
+            artPieces.forEach(piece => {
+                const card = document.createElement('div');
+                card.className = 'art-card';
+                card.innerHTML = `
+                    <div class="art-image" style="background-image: url(${piece.image})">
+                        <div class="time-remaining">${piece.timeRemaining}</div>
+                    </div>
+                    <div class="art-info">
+                        <h3 class="art-title">${piece.title}</h3>
+                        <div class="art-artist">
+                            <div class="artist-avatar"></div>
+                            <span>by ${piece.artist}</span>
+                        </div>
+                        <div class="bid-info">
+                            <div class="current-bid">$${piece.currentBid.toLocaleString()}</div>
+                            <div class="bid-count">${piece.bidCount} bids</div>
+                        </div>
+                        <button onclick="openBidModal(${piece.id})">Place Bid</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filter functionality
+        const filterOptions = document.querySelectorAll('.filter-option');
+        filterOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                filterOptions.forEach(opt => opt.classList.remove('active'));
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                const category = this.textContent;
+                if (category === 'All') {
+                    createArtCards();
+                } else {
+                    const filteredArt = artPieces.filter(piece => piece.category === category);
+                    const grid = document.querySelector('.art-grid');
+                    grid.innerHTML = '';
+                    filteredArt.forEach(piece => {
+                        // Reuse the card creation logic
+                        const card = document.createElement('div');
+                        // ... (same card creation code as above)
+                    });
+                }
+            });
+        });
+
+        // Enhanced Modal functionality
+        const modal = document.getElementById('bidModal');
+        const closeBtn = document.querySelector('.close-modal');
+        const bidForm = document.getElementById('bidForm');
+        const bidAmountInput = document.getElementById('bidAmount');
+        const bidError = document.getElementById('bidError');
+
+        function openBidModal(artId) {
+            const art = artPieces.find(piece => piece.id === artId);
+            modal.style.display = 'block';
+            modal.dataset.artId = artId;
+
+            // Update current art info in modal
+            const artInfo = document.querySelector('.current-art-info');
+            artInfo.innerHTML = `
+                <div class="modal-art-details">
+                    <h3>${art.title}</h3>
+                    <p>Current Bid: $${art.currentBid.toLocaleString()}</p>
+                    <p>Minimum Bid: $${(art.currentBid + 100).toLocaleString()}</p>
+                </div>
+            `;
+
+            // Update bid history
+            updateBidHistory(art.bidHistory);
+
+            // Set minimum bid amount
+            bidAmountInput.min = art.currentBid + 100;
+        }
+
+        function updateBidHistory(history) {
+            const bidHistoryContainer = document.querySelector('.bid-history');
+            bidHistoryContainer.innerHTML = '<h3>Bid History</h3>';
+            
+            history.forEach(bid => {
+                const bidEntry = document.createElement('div');
+                bidEntry.className = 'bid-entry';
+                bidEntry.innerHTML = `
+                    <div class="bidder-info">
+                        <span>${bid.bidder}</span>
+                        <span class="bid-time">${bid.time}</span>
+                    </div>
+                    <div class="bid-amount">$${bid.amount.toLocaleString()}</div>
+                `;
+                bidHistoryContainer.appendChild(bidEntry);
+            });
+        }
+
+        // Form validation and submission
+        bidForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const artId = parseInt(modal.dataset.artId);
+            const art = artPieces.find(piece => piece.id === artId);
+            const bidAmount = parseFloat(bidAmountInput.value);
+            const nickname = document.getElementById('nickname').value || 'Anonymous';
+
+            // Validation
+            if (bidAmount <= art.currentBid) {
+                showError('Bid must be higher than current bid');
+                return;
+            }
+
+            if (bidAmount < art.currentBid + 100) {
+                showError('Minimum bid increment is $100');
+                return;
+            }
+
+            // Process bid
+            processBid(artId, bidAmount, nickname);
+        });
+
+        function showError(message) {
+            bidError.textContent = message;
+            bidError.style.display = 'block';
+            setTimeout(() => {
+                bidError.style.display = 'none';
+            }, 3000);
+        }
+
+        function processBid(artId, amount, nickname) {
+            // Update art piece data
+            const artIndex = artPieces.findIndex(piece => piece.id === artId);
+            artPieces[artIndex].currentBid = amount;
+            artPieces[artIndex].bidCount++;
+            artPieces[artIndex].bidHistory.unshift({
+                bidder: nickname,
+                amount: amount,
+                time: 'Just now'
+            });
+
+            // Update UI
+            createArtCards();
+            showNotification(`Bid of $${amount.toLocaleString()} placed successfully!`);
+            
+            // Close modal and reset form
+            modal.style.display = 'none';
+            bidForm.reset();
+        }
+
+        // Notification system
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div class="notification-icon">✓</div>
+                <div class="notification-message">${message}</div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Initialize the page
+        createArtCards();
+
+        // Simulated WebSocket connection for real-time updates
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                const randomArt = artPieces[Math.floor(Math.random() * artPieces.length)];
+                const newBid = randomArt.currentBid + Math.floor(Math.random() * 500) + 100;
+                
+                // Update bid
+                randomArt.currentBid = newBid;
+                randomArt.bidCount++;
+                randomArt.bidHistory.unshift({
+                    bidder: 'Live Bidder',
+                    amount: newBid,
+                    time: 'Just now'
+                });
+
+                // Update UI
+                createArtCards();
+                showNotification(`New bid on "${randomArt.title}": $${newBid.toLocaleString()}`);
+            }, 15000); // Simulate new bid every 15 seconds
+        }
+
+        // Start real-time simulation
+        simulateRealTimeUpdates();
+
+        // Search functionality
+        function handleSearch() {
+            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
+            const filteredArt = artPieces.filter(piece => 
+                piece.title.toLowerCase().includes(searchTerm) ||
+                piece.artist.toLowerCase().includes(searchTerm) ||
+                piece.category.toLowerCase().includes(searchTerm)
+            );
+            createArtCards(filteredArt);
+        }
+
+        // Detailed view functionality
+        function openDetailedView(artId) {
+            const art = artPieces.find(piece => piece.id === artId);
+            const detailedView = document.getElementById('detailedView');
+            
+            // Update content
+            document.getElementById('mainImage').style.backgroundImage = `url(${art.image})`;
+            document.getElementById('artTitle').textContent = art.title;
+            document.getElementById('artArtist').textContent = `by ${art.artist}`;
+            document.getElementById('artCurrentBid').textContent = `$${art.currentBid.toLocaleString()}`;
+            document.getElementById('artTimeRemaining').textContent = art.timeRemaining;
+            document.getElementById('artBidCount').textContent = art.bidCount;
+            document.getElementById('artCategory').textContent = art.category;
+            document.getElementById('minimumBid').textContent = (art.currentBid + 100).toLocaleString();
+
+            // Create thumbnails (simulated multiple images)
+            const thumbnailGrid = document.getElementById('thumbnailGrid');
+            thumbnailGrid.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail';
+                thumbnail.style.backgroundImage = `url(${art.image})`;
+                thumbnail.onclick = () => document.getElementById('mainImage').style.backgroundImage = `url(${art.image})`;
+                thumbnailGrid.appendChild(thumbnail);
+            }
+
+            // Update bid history
+            updateDetailedBidHistory(art.bidHistory);
+
+            // Show related items
+            updateRelatedItems(art.category, art.id);
+
+            detailedView.style.display = 'block';
+        }
+
+        function closeDetailedView() {
+            document.getElementById('detailedView').style.display = 'none';
+        }
+
+        function updateDetailedBidHistory(history) {
+            const container = document.getElementById('detailedBidHistory');
+            container.innerHTML = history.map(bid => `
+                <div class="bid-entry">
+                    <div class="bidder-info">
+                        <span>${bid.bidder}</span>
+                        <span class="bid-time">${bid.time}</span>
+                    </div>
+                    <div class="bid-amount">$${bid.amount.toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateRelatedItems(category, currentId) {
+            const related = artPieces
+                .filter(piece => piece.category === category && piece.id !== currentId)
+                .slice(0, 4);
+
+            const container = document.getElementById('relatedGrid');
+            container.innerHTML = related.map(piece => `
+                <div class="related-item" onclick="openDetailedView(${piece.id})">
+                    <div class="thumbnail" style="background-image: url(${piece.image})"></div>
+                    <p>${piece.title}</p>
+                    <p>$${piece.currentBid.toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        // Enhanced notification system
+        function showNotification(message, type = 'success') {
+            const notificationCenter = document.querySelector('.notification-center') || 
+                (() => {
+                    const nc = document.createElement('div');
+                    nc.className = 'notification-center';
+                    document.body.appendChild(nc);
+                    return nc;
+                })();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-icon">✓</div>
+                <div class="notification-message">${message}</div>
+            `;
+
+            notificationCenter.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Update art card creation to include image click handler
+        function createArtCards(pieces = artPieces) {
+            const grid = document.querySelector('.art-grid');
+            grid.innerHTML = '';
+
+            pieces.forEach(piece => {
+                const card = document.createElement('div');
+                card.className = 'art-card';
+                card.innerHTML = `
+                    <div class="art-image" style="background-image: url(${piece.image})" onclick="openDetailedView(${piece.id})">
+                        <div class="time-remaining">${piece.timeRemaining}</div>
+                    </div>
+                    <div class="art-info">
+                        <h3 class="art-title">${piece.title}</h3>
+                        <div class="art-artist">
+                            <div class="artist-avatar"></div>
+                            <span>by ${piece.artist}</span>
+                        </div>
+                        <div class="bid-info">
+                            <div class="current-bid">$${piece.currentBid.toLocaleString()}</div>
+                            <div class="bid-count">${piece.bidCount} bids</div>
+                        </div>
+                        <button onclick="openBidModal(${piece.id})">Place Bid</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Initialize the page
+        createArtCards();
+
+    </script>
+ 
+</body>
+</html>
